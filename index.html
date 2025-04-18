@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vocab Manager</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6f8;
+            padding: 30px;
+            color: #333;
+        }
+
+        h2 {
+            color: #2c3e50;
+        }
+
+        label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        select, input[type="text"] {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        input[type="text"] {
+            width: 250px;
+        }
+
+        button {
+            padding: 8px 14px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+            button:hover {
+                background-color: #2980b9;
+            }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .section {
+            margin-top: 30px;
+        }
+
+        .container {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 800px;
+            margin: auto;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Compact tag-like result display */
+        #resultList {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 0;
+            margin-top: 10px;
+        }
+
+            #resultList li {
+                list-style: none;
+                background-color: #ffffff;
+                border: 1px solid #ddd;
+                padding: 6px 10px;
+                border-radius: 20px;
+                font-size: 14px;
+                display: flex;
+                align-items: center;
+                box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            }
+
+        .word-text {
+            cursor: pointer;
+            margin-right: 8px;
+        }
+
+        .delete-btn {
+            color: red;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>📚 Vocab Manager</h2>
+
+        <div class="form-group">
+            <label>Category:</label>
+            <select id="category">
+                <option value="vocab">Vocab</option>
+                <option value="idioms">Idioms</option>
+                <option value="ows">OWS</option>
+            </select>
+
+            <label>Alphabet:</label>
+            <select id="alphabet">
+                @for (char c = 'A'; c <= 'Z'; c++)
+                {
+                    <option value="@c">@c</option>
+                }
+            </select>
+        </div>
+
+        <div class="form-group">
+            <input type="text" id="wordInput" placeholder="Enter word or phrase" />
+            <button onclick="addEntry()">Add</button>
+        </div>
+
+        <div class="section">
+            <h3>📂 Filter Entries</h3>
+            <button onclick="filterEntries()">Filter</button>
+            <ul id="resultList"></ul>
+        </div>
+    </div>
+
+    <script>
+        function getKey(category, letter) {
+            return category + "_" + letter.toUpperCase();
+        }
+
+        function addEntry() {
+            const category = document.getElementById("category").value;
+            const letter = document.getElementById("alphabet").value;
+            const word = document.getElementById("wordInput").value.trim();
+
+            if (!word) return alert("Please enter a word/phrase.");
+
+            const key = getKey(category, letter);
+            let data = JSON.parse(localStorage.getItem(key)) || [];
+
+            if (!data.includes(word)) {
+                data.push(word);
+                localStorage.setItem(key, JSON.stringify(data));
+                alert("✅ Added successfully!");
+            } else {
+                alert("⚠️ Word already exists in this category and letter.");
+            }
+
+            document.getElementById("wordInput").value = "";
+        }
+
+        function filterEntries() {
+            const category = document.getElementById("category").value;
+            const letter = document.getElementById("alphabet").value;
+            const key = getKey(category, letter);
+            let data = JSON.parse(localStorage.getItem(key)) || [];
+
+            const list = document.getElementById("resultList");
+            list.innerHTML = "";
+
+            data.forEach((item, index) => {
+                const li = document.createElement("li");
+
+                const wordSpan = document.createElement("span");
+                wordSpan.textContent = item;
+                wordSpan.className = "word-text";
+                wordSpan.title = "Click to see where this appears";
+                wordSpan.onclick = () => showWordDetails(item);
+
+                const deleteBtn = document.createElement("span");
+                deleteBtn.textContent = "❌";
+                deleteBtn.className = "delete-btn";
+                deleteBtn.title = "Delete this word";
+                deleteBtn.onclick = () => {
+                    if (confirm(`Delete "${item}" from ${category.toUpperCase()} - ${letter}?`)) {
+                        data.splice(index, 1);
+                        localStorage.setItem(key, JSON.stringify(data));
+                        filterEntries();
+                    }
+                };
+
+                li.appendChild(wordSpan);
+                li.appendChild(deleteBtn);
+                list.appendChild(li);
+            });
+        }
+
+        function showWordDetails(selectedWord) {
+            const categories = ["vocab", "idioms", "ows"];
+            const resultList = document.getElementById("resultList");
+            resultList.innerHTML = "";
+
+            let found = false;
+
+            categories.forEach(category => {
+                for (let i = 65; i <= 90; i++) {
+                    const letter = String.fromCharCode(i);
+                    const key = getKey(category, letter);
+                    const data = JSON.parse(localStorage.getItem(key)) || [];
+
+                    data.forEach(entry => {
+                        if (entry.toLowerCase() === selectedWord.toLowerCase()) {
+                            const li = document.createElement("li");
+                            li.innerHTML = `<strong>${entry}</strong> in <em>${category.toUpperCase()}</em> [${letter}]`;
+                            resultList.appendChild(li);
+                            found = true;
+                        }
+                    });
+                }
+            });
+
+            if (!found) {
+                const li = document.createElement("li");
+                li.textContent = "No matching entries found in any category.";
+                resultList.appendChild(li);
+            }
+        }
+    </script>
+</body>
+</html>

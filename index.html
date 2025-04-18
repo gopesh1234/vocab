@@ -241,10 +241,12 @@ button:hover {
     </div>
 
     <script>
+        // Helper to build localStorage key
         function getKey(category, letter) {
             return category + "_" + letter.toUpperCase();
         }
 
+        // Add entry to localStorage
         function addEntry() {
             const category = document.getElementById("category").value;
             const letter = document.getElementById("alphabet").value;
@@ -253,7 +255,7 @@ button:hover {
             if (!word) return alert("Please enter a word/phrase.");
 
             const key = getKey(category, letter);
-            let data = JSON.parse(localStorage.getItem(key)) || [];
+            const data = JSON.parse(localStorage.getItem(key)) || [];
 
             if (!data.includes(word)) {
                 data.push(word);
@@ -264,18 +266,20 @@ button:hover {
             }
 
             document.getElementById("wordInput").value = "";
+            filterEntries();  // update list if active
         }
 
+        // Show entries for selected category & letter
         function filterEntries() {
             const category = document.getElementById("category").value;
             const letter = document.getElementById("alphabet").value;
             const key = getKey(category, letter);
-            let data = JSON.parse(localStorage.getItem(key)) || [];
+            const data = JSON.parse(localStorage.getItem(key)) || [];
 
             const list = document.getElementById("resultList");
             list.innerHTML = "";
 
-            data.forEach((item, index) => {
+            data.forEach((item, idx) => {
                 const li = document.createElement("li");
 
                 const wordSpan = document.createElement("span");
@@ -289,8 +293,8 @@ button:hover {
                 deleteBtn.className = "delete-btn";
                 deleteBtn.title = "Delete this word";
                 deleteBtn.onclick = () => {
-                    if (confirm(`Delete "${item}" from ${category.toUpperCase()} - ${letter}?`)) {
-                        data.splice(index, 1);
+                    if (confirm(`Delete "${item}" from ${category.toUpperCase()} – ${letter}?`)) {
+                        data.splice(idx, 1);
                         localStorage.setItem(key, JSON.stringify(data));
                         filterEntries();
                     }
@@ -302,23 +306,23 @@ button:hover {
             });
         }
 
+        // Find and display where a word exists across all categories & letters
         function showWordDetails(selectedWord) {
             const categories = ["vocab", "idioms", "ows"];
             const resultList = document.getElementById("resultList");
             resultList.innerHTML = "";
 
             let found = false;
-
-            categories.forEach(category => {
+            categories.forEach(cat => {
                 for (let i = 65; i <= 90; i++) {
                     const letter = String.fromCharCode(i);
-                    const key = getKey(category, letter);
+                    const key = getKey(cat, letter);
                     const data = JSON.parse(localStorage.getItem(key)) || [];
 
                     data.forEach(entry => {
                         if (entry.toLowerCase() === selectedWord.toLowerCase()) {
                             const li = document.createElement("li");
-                            li.innerHTML = `<strong>${entry}</strong> in <em>${category.toUpperCase()}</em> [${letter}]`;
+                            li.innerHTML = `<strong>${entry}</strong> in <em>${cat.toUpperCase()}</em> [${letter}]`;
                             resultList.appendChild(li);
                             found = true;
                         }
@@ -333,6 +337,7 @@ button:hover {
             }
         }
 
+        // Export the entire selected category A–Z into a PDF
         async function exportToPDF() {
             const category = document.getElementById("category").value;
             const { jsPDF } = window.jspdf;
@@ -346,35 +351,43 @@ button:hover {
             for (let i = 65; i <= 90; i++) {
                 const letter = String.fromCharCode(i);
                 const key = getKey(category, letter);
-                let data = JSON.parse(localStorage.getItem(key)) || [];
+                const data = (JSON.parse(localStorage.getItem(key)) || []).sort((a, b) => a.localeCompare(b));
 
-                if (data.length > 0) {
+                if (data.length) {
                     doc.setFontSize(14);
                     doc.setTextColor(0, 0, 150);
-                    y += 10;
                     if (y > 280) { doc.addPage(); y = 10; }
                     doc.text(`${letter}:`, 15, y);
+                    y += 8;
 
                     doc.setFontSize(12);
                     doc.setTextColor(0, 0, 0);
-                    const sorted = data.sort((a, b) => a.localeCompare(b));
-                    let line = "";
-                    sorted.forEach((word, idx) => {
-                        line += word + (idx !== sorted.length - 1 ? ", " : "");
-                    });
-
-                    const splitLines = doc.splitTextToSize(line, 180);
-                    splitLines.forEach(txt => {
-                        y += 7;
+                    const lineChunks = doc.splitTextToSize(data.join(", "), 180);
+                    lineChunks.forEach(chunk => {
                         if (y > 280) { doc.addPage(); y = 10; }
-                        doc.text(txt, 20, y);
+                        doc.text(chunk, 20, y);
+                        y += 7;
                     });
                 }
             }
 
             doc.save(`${category}_Dictionary.pdf`);
         }
-    </script>
 
+        // Auto‑select alphabet & re‑filter as user types first letter
+        document.getElementById('wordInput')
+            .addEventListener('input', function (e) {
+                const txt = e.target.value.trim();
+                if (!txt) return;
+                const first = txt[0].toUpperCase();
+                if (first >= 'A' && first <= 'Z') {
+                    const select = document.getElementById('alphabet');
+                    if (select.value !== first) {
+                        select.value = first;
+                        filterEntries();
+                    }
+                }
+            });
+    </script>
 </body>
 </html>

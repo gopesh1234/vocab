@@ -9,10 +9,12 @@
             background: #f4f6f8;
             padding: 30px;
             color: #333;
+            margin: 0;
         }
 
         h2 {
             color: #2c3e50;
+            text-align: center;
         }
 
         label {
@@ -25,10 +27,12 @@
             border: 1px solid #ccc;
             border-radius: 6px;
             font-size: 14px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         input[type="text"] {
-            width: 250px;
+            width: calc(100% - 20px);
         }
 
         button {
@@ -40,12 +44,13 @@
             font-size: 14px;
             cursor: pointer;
             transition: background-color 0.3s ease;
-            margin-right: 10px;
+            width: 100%;
+            margin-top: 10px;
         }
 
-            button:hover {
-                background-color: #2980b9;
-            }
+        button:hover {
+            background-color: #2980b9;
+        }
 
         .form-group {
             margin-bottom: 20px;
@@ -72,17 +77,17 @@
             margin-top: 10px;
         }
 
-            #resultList li {
-                list-style: none;
-                background-color: #ffffff;
-                border: 1px solid #ddd;
-                padding: 6px 10px;
-                border-radius: 20px;
-                font-size: 14px;
-                display: flex;
-                align-items: center;
-                box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            }
+        #resultList li {
+            list-style: none;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
 
         .word-text {
             cursor: pointer;
@@ -93,6 +98,52 @@
             color: red;
             cursor: pointer;
             font-size: 14px;
+        }
+
+        /* Mobile responsiveness */
+        @@media screen and (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            label, select, input[type="text"] {
+                width: 100%;
+            }
+
+            h2 {
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
+
+            #resultList li {
+                font-size: 12px;
+                width: 48%; /* 2 items per row */
+                margin-bottom: 10px;
+            }
+        }
+
+        @@media screen and (max-width: 480px) {
+            h2 {
+                font-size: 18px;
+            }
+
+            #resultList li {
+                font-size: 11px;
+                width: 100%; /* 1 item per row */
+            }
+
+            button {
+                padding: 10px;
+                font-size: 16px;
+            }
         }
     </style>
 </head>
@@ -137,7 +188,6 @@
                 <option value="X">X</option>
                 <option value="Y">Y</option>
                 <option value="Z">Z</option>
-
             </select>
         </div>
 

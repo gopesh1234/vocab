@@ -4,157 +4,182 @@
     <title>Vocab Manager</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f4f6f8;
-            padding: 30px;
-            color: #333;
-            margin: 0;
-            font-weight: bold;
-        }
+        /* ====== Global Styles ====== */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f6f7;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
 
-        h2 {
-            color: #2c3e50;
-            text-align: center;
-            font-size: 26px;
-        }
+.container {
+    max-width: 480px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
 
-        label {
-            font-weight: bold;
-            margin-right: 10px;
-            font-size: 16px;
-        }
+/* ====== Headings ====== */
+h2 {
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+}
 
-        select, input[type="text"] {
-            padding: 12px 16px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 16px;
-            width: 100%;
-            box-sizing: border-box;
-        }
+/* ====== Form Elements ====== */
+label {
+    display: block;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
 
-        input[type="text"] {
-            width: calc(100% - 20px);
-        }
+select,
+input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 18px;
+    box-sizing: border-box;
+}
 
-        button {
-            padding: 12px 16px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            width: 100%;
-            margin-top: 15px;
-        }
+/* ====== Buttons ====== */
+button {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 16px;
+    background: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    box-sizing: border-box;
+}
 
-        button:hover {
-            background-color: #2980b9;
-        }
+button:hover {
+    background: #2980b9;
+}
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+/* ====== Filter Entries List ====== */
+#resultList {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
 
-        .section {
-            margin-top: 30px;
-        }
+#resultList li {
+    background: #eef3f7;
+    padding: 10px 12px;
+    border-radius: 20px;
+    font-size: 16px;
+    flex: 1 0 45%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+}
 
-        .container {
-            background: #ffffff;
-            border-radius: 10px;
-            padding: 30px;
-            max-width: 800px;
-            margin: auto;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        }
+/* Word text styling */
+.word-text {
+    cursor: pointer;
+    flex-grow: 1;
+    margin-right: 8px;
+    font-size: 16px;
+}
 
-        #resultList {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            padding: 0;
-            margin-top: 15px;
-        }
+/* Delete button styling */
+.delete-btn {
+    color: red;
+    cursor: pointer;
+    font-size: 18px;
+}
 
-        #resultList li {
-            list-style: none;
-            background-color: #ffffff;
-            border: 1px solid #ddd;
-            padding: 10px 14px;
-            border-radius: 20px;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
+/* ====== Responsive Media Queries ====== */
+@@media screen and (max-width: 768px) {
+    .container {
+        margin: 10px;
+        padding: 16px;
+    }
 
-        .word-text {
-            cursor: pointer;
-            margin-right: 12px;
-            font-size: 16px;
-        }
+    h2 {
+        font-size: 22px;
+        margin-bottom: 18px;
+    }
 
-        .delete-btn {
-            color: red;
-            cursor: pointer;
-            font-size: 18px;
-        }
+    label,
+    select,
+    input[type="text"],
+    button {
+        font-size: 20px;
+    }
 
-        /* Mobile responsiveness */
-        @@media screen and (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
+    select,
+    input[type="text"] {
+        padding: 14px;
+        margin-bottom: 14px;
+    }
 
-            button {
-                width: 100%;
-                padding: 15px;
-                font-size: 18px;
-            }
+    button {
+        padding: 16px;
+        margin-bottom: 14px;
+    }
 
-            .form-group {
-                margin-bottom: 20px;
-            }
+    #resultList li {
+        font-size: 18px;
+        flex: 1 0 48%;
+    }
+}
 
-            label, select, input[type="text"] {
-                font-size: 18px;
-            }
+@@media screen and (max-width: 480px) {
+    h2 {
+        font-size: 20px;
+        margin-bottom: 16px;
+    }
 
-            h2 {
-                font-size: 24px;
-                margin-bottom: 20px;
-            }
+    label,
+    select,
+    input[type="text"],
+    button {
+        font-size: 22px;
+    }
 
-            #resultList li {
-                font-size: 16px;
-                width: 48%; /* 2 items per row */
-                margin-bottom: 10px;
-            }
-        }
+    select,
+    input[type="text"] {
+        padding: 16px;
+        margin-bottom: 12px;
+    }
 
-        @@media screen and (max-width: 480px) {
-            h2 {
-                font-size: 22px;
-            }
+    button {
+        padding: 18px;
+        margin-bottom: 12px;
+    }
 
-            #resultList li {
-                font-size: 18px;
-                width: 100%; /* 1 item per row */
-            }
+    #resultList li {
+        font-size: 20px;
+        flex: 1 0 100%;
+        padding: 12px 14px;
+    }
 
-            button {
-                padding: 16px;
-                font-size: 20px;
-            }
+    .word-text {
+        font-size: 18px;
+    }
 
-            label, select, input[type="text"] {
-                font-size: 20px;
-            }
-        }
+    .delete-btn {
+        font-size: 20px;
+    }
+}
+
     </style>
 </head>
 <body>
@@ -163,11 +188,14 @@
         <h2>📚 Vocab Manager</h2>
 
         <div class="form-group">
+            <label>Category:</label>
             <select id="category">
                 <option value="vocab">Vocab</option>
                 <option value="idioms">Idioms</option>
                 <option value="ows">OWS</option>
             </select>
+
+            <label>Alphabet:</label>
             <select id="alphabet">
                 <option value="A">A</option>
                 <option value="B">B</option>
